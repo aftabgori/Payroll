@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "payroll-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/payroll/PayrollWebPart.js",
+          "manifest": "./src/webparts/payroll/PayrollWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "PayrollWebPartStrings": "lib/webparts/payroll/loc/{locale}.js"
+  }
+}
