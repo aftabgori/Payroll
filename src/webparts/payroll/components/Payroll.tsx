@@ -5,8 +5,10 @@ import {
   Box,
   Button,
   InputLabel,
-  MenuItem,
+  FormControl,
   Select,
+  MenuItem,
+
   TextField,
 } from "@material-ui/core";
 // import { Label } from 'office-ui-fabric-react';
@@ -19,7 +21,7 @@ import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper/";
 import axios from "axios";
 
-import FormControl from "@mui/material/FormControl";
+
 // import { Dayjs } from "dayjs";
 import Stack from "@mui/material/Stack";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -27,13 +29,14 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
 import TextField1 from "@mui/material/TextField";
 import { Dayjs } from "dayjs";
+
 // import { filter } from "lodash";
 // import LabTabs from "./EmployeeDetails";
 
 export interface IPayrollState {
   isLoading: boolean;
-  empIdDetail: number;
-  employeeResponseLength: number;
+  payrollIdDetail: number;
+  payrollResponseLength: number;
   searchCompany: string;
   searchPayGroup: string;
   searchPayPeriodEndDate: Dayjs;
@@ -44,7 +47,27 @@ export interface IPayrollState {
   SearchPaycheckNumber: string;
   SearchEmpId: string;
   SearchName: string;
-
+  payrollItem: {
+    employeeId: 0,
+    company: string,
+    payGroup: string,
+    payPeriodEndDate: string,
+    offCycle: string,
+    paycheckNumber: string,
+    name: string,
+    pageNbr: string,
+    lineNbr: string,
+    seperateCheckNbr: string,
+    formIdentification: string,
+    fileUrl:string,
+    earnings:string,
+    taxes:string,
+    deductions:string,
+    netpay:string,
+    paycheckOption:string,
+    paycheckType:string,
+    issueDate:string
+  };
   items: [
     {
       employeeId: 0,
@@ -58,8 +81,77 @@ export interface IPayrollState {
       lineNbr: string,
       seperateCheckNbr: string,
       formIdentification: string,
+      fileUrl:string,
+      earnings:string,
+      taxes:string,
+      deductions:string,
+      netpay:string,
+      paycheckOption:string,
+      paycheckType:string,
+      issueDate:string
     }
   ];
+  mainEarnings:[{
+    paycheckNumber:number;
+    beginDate:string;
+    endDate:string;
+    reason:string;
+    employeeRecord:string;
+    benefitRecord:string;
+    salaryHours:string;
+    salaryRate:string;
+    salaryEarnings:string;
+    hourlyHours:string;
+    hourlyRate:string;
+    hourlyEarnings:string;
+    hourlyRateCode:string;
+    overtimeHours:string;
+    overtimeEarnings:string;
+    overtimeRate:string;
+    overtimeRateCode:string;
+    rateUsed:string;
+    state:string;
+    shift:string;
+    locality:string;
+    shiftRate:string;
+  }];
+  secondaryEarnings:[{
+    paycheckNumber:number;
+    code:number;
+    description:string;
+    rateUsed:string;
+    hours:number;
+    amount:number;
+    rate:number;
+    source:string;
+  }];
+  taxes:[{
+    paycheckNumber:number;
+    taxEntity:string;
+    state:string;
+    resident:string;
+    locality:string;
+    localityName:string;
+    taxClass:string;
+    taxableGross:number;
+    taxAmount:number;
+  }];
+  deductions:[{
+    paycheckNumber:number;
+    deductionCode:string;
+    description:string;
+    class:string;
+    amount:number;
+    calculatedBase:string;
+  }];
+  netPay:[{
+    paycheckNumber:number;
+    checkAdviceNumber:number;
+    accountType:string;
+    bankIds:string;
+    accountNumber:number;
+    amount:number;
+  }]
 }
 
 export default class Payroll extends React.Component<
@@ -71,8 +163,8 @@ export default class Payroll extends React.Component<
 
     this.state = {
       isLoading: true,
-      empIdDetail: 0,
-      employeeResponseLength: 0,
+      payrollIdDetail: 0,
+      payrollResponseLength: 0,
       searchCompany: "",
       searchPayGroup: "",
       searchPayPeriodEndDate: null,
@@ -83,7 +175,29 @@ export default class Payroll extends React.Component<
       SearchPaycheckNumber: "",
       SearchEmpId: "",
       SearchName: "",
-
+      payrollItem:
+        {
+          employeeId: 0,
+          company: "",
+          payGroup: "",
+          payPeriodEndDate: "",
+          offCycle: "",
+          paycheckNumber: "",
+          name: "",
+          pageNbr: "",
+          lineNbr: "",
+          seperateCheckNbr: "",
+          formIdentification: "",
+          fileUrl:"",
+          earnings:"",
+          taxes:"",
+          deductions:"",
+          netpay:"",
+          paycheckOption:"",
+          paycheckType:"",
+          issueDate:""
+        },
+      
       items: [
         {
           employeeId: 0,
@@ -97,15 +211,92 @@ export default class Payroll extends React.Component<
           lineNbr: "",
           seperateCheckNbr: "",
           formIdentification: "",
-        },
+          fileUrl:"",
+          earnings:"",
+          taxes:"",
+          deductions:"",
+          netpay:"",
+          paycheckOption:"",
+          paycheckType:"",
+          issueDate:""
+        }],
+     mainEarnings :[
+        {
+          paycheckNumber:0,
+          beginDate:"",
+          benefitRecord:"",
+          endDate:"",
+          reason:"",
+          employeeRecord:"",
+          salaryRate:"",
+          salaryHours:"",
+          hourlyHours:"",
+          salaryEarnings:"",
+          hourlyEarnings:"",
+          hourlyRate:"",
+          overtimeHours:"",
+          hourlyRateCode:"",
+          overtimeRate:"",
+          overtimeEarnings:"",
+          rateUsed:"",
+          overtimeRateCode:"",
+          shift:"",
+          state:"",
+          shiftRate:"",
+          locality:""
+        }
+      ]
+      ,
+      secondaryEarnings:[
+        {
+          paycheckNumber:0,
+          code:0,
+          rateUsed:"",
+          description:"",
+          amount:0,
+          hours:0,
+          source:"",
+          rate:0,
+        }
       ],
+      taxes:[{
+        paycheckNumber:0,
+    taxEntity:"",
+    state:"",
+    resident:"",
+    locality:"",
+    localityName:"",
+    taxClass:"",
+    taxableGross:0,
+    taxAmount:0,
+    }],
+    deductions:[{
+      paycheckNumber:0,
+      deductionCode:"",
+      description:"",
+      class:"",
+      amount:0,
+      calculatedBase:"",
+    }],
+    netPay:[{
+      paycheckNumber:0,
+      checkAdviceNumber:0,
+      accountType:"",
+      bankIds:"",
+      accountNumber:0,
+      amount:0
+   }]
+
+
     };
     this.handleSearch = this.handleSearch.bind(this);
     this.handleBack = this.handleBack.bind(this);
+    this.handleCreatedDateChange = this.handleCreatedDateChange.bind(this);
+    this.handleDetailClick = this.handleDetailClick.bind(this);
   }
 
   public handleBack() {
-    this.setState({ empIdDetail: 0 });
+    this.setState({ payrollIdDetail: 0 });
   }
 
   public render(): React.ReactElement<IPayrollProps> {
@@ -119,7 +310,7 @@ export default class Payroll extends React.Component<
           <EmployeeDetails  empDetail={this.state.itemEmployee} assignmentDetail={this.state.assignmentItems} /> 
         </div> */}
         <div className={styles.mainDivMargin}>
-          {this.state.empIdDetail == 0 ? (
+          {this.state.payrollIdDetail == 0 ? (
             <div>
               <div className={styles["disp-flex"]}>
                 <div>
@@ -164,7 +355,7 @@ export default class Payroll extends React.Component<
                       <DesktopDatePicker
                         InputProps={{ style: { height: "43px" } }}
                         // className={styles["MuiInputBase-root"]}
-                        label="Date"
+                        label="Pay Period End Date"
                         inputFormat="MM/DD/YYYY"
                         value={this.state.searchPayPeriodEndDate}
                         onChange={this.handleCreatedDateChange}
@@ -173,25 +364,36 @@ export default class Payroll extends React.Component<
                     </Stack>
                   </LocalizationProvider>
                 </div>
+               
 
+                
                 <div>
-                  {/* <Label className={styles.label}>Employee ID:</Label> */}
-                  <TextField
-                    inputProps={{
-                      style: {
-                        height: "6px",
-                      },
-                    }}
-                    onChange={(event) => {
-                      this.setState({ searchOffCycle: event.target.value });
-                    }}
-                    value={this.state.searchOffCycle}
-                    id="outlined-basic"
-                    label="Off Cycle"
-                    variant="outlined"
-                  />
+                  <Box sx={{ minWidth: 120 }}>
+                    <FormControl fullWidth variant="outlined">
+                      <InputLabel id="demo-simple-select-label">
+                        Off Cycle?
+                      </InputLabel>
+                      <Select
+                        className={styles["MuiOutlinedInput-root"]}
+                        onChange={(event) => {
+                          this.setState({
+                            searchOffCycle: event.target.value.toString(),
+                          });
+                        }}
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        // value={age}
+                        label="Off Cycle?"
+                        value={this.state.searchOffCycle}
+                        placeholder="Off Cycle?"
+                        // onChange={handleChange}
+                      >
+                        <MenuItem value={"N"}>No</MenuItem>
+                        <MenuItem value={"Y"}>Yes</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Box>
                 </div>
-
                 <div>
                   {/* <Label className={styles.label}>Employee ID:</Label> */}
                   <TextField
@@ -228,7 +430,9 @@ export default class Payroll extends React.Component<
                   />
                 </div>
 
-                <div>
+              </div>
+              <div className={styles["disp-flex-row2"]}>
+              <div>
                   {/* <Label className={styles.label}>Employee ID:</Label> */}
                   <TextField
                     inputProps={{
@@ -299,106 +503,24 @@ export default class Payroll extends React.Component<
                     variant="outlined"
                   />
                 </div>
-
-                {/* <div>
-                  <Box sx={{ minWidth: 120 }}>
-                    <FormControl fullWidth variant="outlined">
-                      <InputLabel id="demo-simple-select-label">
-                        Gender
-                      </InputLabel>
-                      <Select
-                        className={styles["MuiOutlinedInput-root"]}
-                        onChange={(event) => {
-                          this.setState({
-                            searchGender: event.target.value.toString(),
-                          });
-                        }}
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        // value={age}
-                        label="Gender"
-                        value={this.state.searchGender}
-                        placeholder="Gender"
-                        // onChange={handleChange}
-                      >
-                        <MenuItem value={"Male"}>Male</MenuItem>
-                        <MenuItem value={"Female"}>Female</MenuItem>
-                      </Select>
-                    </FormControl>
-                  </Box>
-                </div> */}
-
-                {/* <div>
-                  <TextField
-                    inputProps={{
-                      style: {
-                        height: "6px",
-                      },
-                    }}
-                    onChange={(event) => {
-                      this.setState({ searchName: event.target.value });
-                    }}
-                    value={this.state.searchName}
-                    id="outlined-basic"
-                    label="Employee Name"
-                    variant="outlined"
-                  />
-                </div> */}
-
-                {/* <div className={styles["disp-flex-row2"]}> */}
-
-                {/* <div>
-                  <TextField
-                    inputProps={{
-                      style: {
-                        height: "6px",
-                      },
-                    }}
-                    onChange={(event) => {
-                      this.setState({ searchEmail: event.target.value });
-                    }}
-                    value={this.state.searchEmail}
-                    id="outlined-basic"
-                    label="Email"
-                    variant="outlined"
-                  />
-                </div> */}
-
-                {/* <div>
-                  <TextField
-                    inputProps={{
-                      style: {
-                        height: "6px",
-                      },
-                    }}
-                    onChange={(event) => {
-                      this.setState({ searchMobile: event.target.value });
-                    }}
-                    value={this.state.searchMobile}
-                    id="outlined-basic"
-                    label="Mobile"
-                    variant="outlined"
-                  />
-                </div> */}
-
                 <div>
                   <Button onClick={this.handleSearch} variant="contained">
                     Search
                   </Button>
                 </div>
-                {/* </div> */}
+
               </div>
               <br />
               {/* Employee DataTable */}
               <div>
-                {this.state.employeeResponseLength > 0 ? (
+                {this.state.payrollResponseLength > 0 ? (
                   <div>
                     <TableContainer component={Paper}>
                       <Table className={styles["MuiTable-root"]}>
                         <TableHead className={styles["MuiTableHead-root"]}>
                           <TableRow>
                             <TableCell className={styles["MuiTableCell-head"]}>
-                              Employee Id
+                              Payslip
                             </TableCell>
                             <TableCell className={styles["MuiTableCell-head"]}>
                               Company
@@ -413,12 +535,6 @@ export default class Payroll extends React.Component<
                               Off Cycle
                             </TableCell>
                             <TableCell className={styles["MuiTableCell-head"]}>
-                              PayCheck Number
-                            </TableCell>
-                            <TableCell className={styles["MuiTableCell-head"]}>
-                              Name
-                            </TableCell>
-                            <TableCell className={styles["MuiTableCell-head"]}>
                               Page Number
                             </TableCell>
                             <TableCell className={styles["MuiTableCell-head"]}>
@@ -431,7 +547,13 @@ export default class Payroll extends React.Component<
                               Form Indentification
                             </TableCell>
                             <TableCell className={styles["MuiTableCell-head"]}>
-                              Line Number
+                              Paycheck Number
+                            </TableCell>
+                            <TableCell className={styles["MuiTableCell-head"]}>
+                              Employee ID
+                            </TableCell>
+                            <TableCell className={styles["MuiTableCell-head"]}>
+                              Name
                             </TableCell>
                           </TableRow>
                         </TableHead>
@@ -439,21 +561,20 @@ export default class Payroll extends React.Component<
                           {this.state.items.map((row) => {
                             return (
                               <TableRow
-                                // onClick={() => this.handleClick(row.employeeId)}
+                                onClick={() => this.handleDetailClick(row.paycheckNumber)}
                                 className={styles.tableRow}
                                 key={row.employeeId}
                               >
                                 {/* <TableCell component="th" scope="row" /> */}
-                                <TableCell
-                                  className={styles["MuiTableCell-body"]}
-                                >
-                                  {row.employeeId}
-                                </TableCell>
-                                <TableCell
-                                  className={styles["MuiTableCell-body"]}
-                                >
-                                  {row.name}
-                                </TableCell>
+                                <TableCell className={styles["MuiTableCell-bodyImg"]}>
+                              {
+                                <div className={styles.ImgCenter}>
+                                  <a target="_blank" rel="noreferrer" href={row.fileUrl}>
+                                    <img className={styles.centerImg} src="https://globalmindsbiz.sharepoint.com/sites/Peoplesoft/Shared%20Documents/downloadIcon.png" />
+                                  </a>
+                              </div>
+                              }
+                            </TableCell>
                                 <TableCell
                                   className={styles["MuiTableCell-body"]}
                                 >
@@ -467,7 +588,9 @@ export default class Payroll extends React.Component<
                                 <TableCell
                                   className={styles["MuiTableCell-body"]}
                                 >
-                                  {row.paycheckNumber}
+                                  {new Date(
+                                    row.payPeriodEndDate
+                                  ).toLocaleDateString("en-GB")}
                                 </TableCell>
                                 <TableCell
                                   className={styles["MuiTableCell-body"]}
@@ -477,19 +600,12 @@ export default class Payroll extends React.Component<
                                 <TableCell
                                   className={styles["MuiTableCell-body"]}
                                 >
-                                  {new Date(
-                                    row.payPeriodEndDate
-                                  ).toLocaleDateString("en-GB")}
+                                  {row.pageNbr}
                                 </TableCell>
                                 <TableCell
                                   className={styles["MuiTableCell-body"]}
                                 >
                                   {row.lineNbr}
-                                </TableCell>
-                                <TableCell
-                                  className={styles["MuiTableCell-body"]}
-                                >
-                                  {row.pageNbr}
                                 </TableCell>
                                 <TableCell
                                   className={styles["MuiTableCell-body"]}
@@ -500,6 +616,21 @@ export default class Payroll extends React.Component<
                                   className={styles["MuiTableCell-body"]}
                                 >
                                   {row.formIdentification}
+                                </TableCell>
+                                <TableCell
+                                  className={styles["MuiTableCell-body"]}
+                                >
+                                  {row.paycheckNumber}
+                                </TableCell>
+                                <TableCell
+                                  className={styles["MuiTableCell-body"]}
+                                >
+                                  {row.employeeId}
+                                </TableCell>
+                                <TableCell
+                                  className={styles["MuiTableCell-body"]}
+                                >
+                                  {row.name}
                                 </TableCell>
                               </TableRow>
                             );
@@ -516,29 +647,13 @@ export default class Payroll extends React.Component<
               </div>
             </div>
           ) : (
-            <div>abcd</div>
+            <div>Tabs for Earnings, deductions and taxes</div>
           )}
         </div>
       </>
     );
   }
-  // public async handleClick(empId: any) {
-  //   let queryString =
-  //     "https://peoplesoftservice20221228200557.azurewebsites.net/api/PeopleSoft/" +
-  //     empId;
-
-  //   let newArray = this.state.items.filter(function (el: any) {
-  //     return el.employeeId == empId;
-  //   });
-  //   await axios.get(queryString).then((response) => {
-  //     // debugger;
-  //     this.setState({
-  //       assignmentItems: response.data,
-  //       itemEmployee: newArray[0],
-  //       empIdDetail: empId,
-  //     });
-  //   });
-  // }
+  
 
   public handleCreatedDateChange(newValue: Dayjs) {
     debugger;
@@ -555,19 +670,19 @@ export default class Payroll extends React.Component<
     }
 
     if (this.state.searchPayGroup != "") {
-      queryString += "&payGroup=" + this.state.searchPayGroup;
+      queryString += "&paygroup=" + this.state.searchPayGroup;
     }
 
     if (this.state.searchPayPeriodEndDate) {
-      queryString += "&payPeriodEndDate=" + this.state.searchPayPeriodEndDate;
+      queryString += "&payperiodenddate=" + this.state.searchPayPeriodEndDate.format('MM-DD-YYYY');
     }
 
     if (this.state.searchOffCycle != "") {
-      queryString += "&offCycle=" + this.state.searchOffCycle;
+      queryString += "&offcycle=" + this.state.searchOffCycle;
     }
 
     if (this.state.searchLineNbr != "") {
-      queryString += "&lineNbr=" + this.state.searchLineNbr;
+      queryString += "&linenbr=" + this.state.searchLineNbr;
     }
 
     if (this.state.searchSeparateCheckNbr != "") {
@@ -585,13 +700,74 @@ export default class Payroll extends React.Component<
     if (this.state.SearchName != "") {
       queryString += "&name=" + this.state.SearchName;
     }
-
+    if(this.state.searchPageNbr!=""){
+      queryString += "&pageNbr=" + this.state.searchPageNbr;
+    }
     await axios.get(queryString).then((response) => {
       // debugger;
       this.setState({
         items: response.data,
-        employeeResponseLength: response.data.length,
+        payrollResponseLength: response.data.length,
       });
     });
+  }
+  public async handleDetailClick(payCheckNo: any){
+    let newArray = this.state.items.filter(function (el: any) {
+      return el.paycheckNumber == payCheckNo;
+     });
+     let queryStringTaxes =
+    "https://peoplesoftservice20221228200557.azurewebsites.net/api/PeopleSoft/GetTaxDeduction/" +
+     payCheckNo;
+     let queryStringMainEarnings =
+    " https://peoplesoftservice20221228200557.azurewebsites.net/api/PeopleSoft/GetMainEarnings/" +
+     payCheckNo;
+     let queryStringSecondaryEarnings =
+    "https://peoplesoftservice20221228200557.azurewebsites.net/api/PeopleSoft/GetSecondaryEarnings/" +
+     payCheckNo;
+     let queryStringDeductions =
+    "https://peoplesoftservice20221228200557.azurewebsites.net/api/PeopleSoft/GetDeduction/" +
+     payCheckNo;
+     let queryStringNetPay =
+    "https://peoplesoftservice20221228200557.azurewebsites.net/api/PeopleSoft/GetNetPay/" +
+     payCheckNo;
+
+    await axios.get(queryStringMainEarnings).then((response) => {
+      // debugger;
+      this.setState({
+        mainEarnings: response.data,
+
+      });
+    });
+    await axios.get(queryStringDeductions).then((response) => {
+      // debugger;
+      this.setState({
+        deductions: response.data,
+
+      });
+    });
+    await axios.get(queryStringSecondaryEarnings).then((response) => {
+      // debugger;
+      this.setState({
+        secondaryEarnings: response.data,
+
+      });
+    });
+    await axios.get(queryStringNetPay).then((response) => {
+      // debugger;
+      this.setState({
+        netPay: response.data,
+
+      });
+    });
+    await axios.get(queryStringTaxes).then((response) => {
+      // debugger;
+      this.setState({
+        taxes: response.data,
+        payrollItem: newArray[0],
+        payrollIdDetail:payCheckNo
+      });
+    });
+
+
   }
 }
