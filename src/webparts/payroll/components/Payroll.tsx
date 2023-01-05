@@ -20,6 +20,7 @@ import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper/";
 import axios from "axios";
+import LabTabs from "./PayrollDetails";
 
 
 // import { Dayjs } from "dayjs";
@@ -148,7 +149,7 @@ export interface IPayrollState {
     paycheckNumber:number;
     checkAdviceNumber:number;
     accountType:string;
-    bankIds:string;
+    bankId:string;
     accountNumber:number;
     amount:number;
   }]
@@ -282,7 +283,7 @@ export default class Payroll extends React.Component<
       paycheckNumber:0,
       checkAdviceNumber:0,
       accountType:"",
-      bankIds:"",
+      bankId:"",
       accountNumber:0,
       amount:0
    }]
@@ -647,7 +648,10 @@ export default class Payroll extends React.Component<
               </div>
             </div>
           ) : (
-            <div>Tabs for Earnings, deductions and taxes</div>
+            <div>
+              <LabTabs handleBack={this.handleBack} taxItems={this.state.taxes} mainEarnings={this.state.mainEarnings} secondaryEarnings={this.state.secondaryEarnings}
+              deductions={this.state.deductions} netpay={this.state.netPay} payrollItem={this.state.payrollItem}/>
+            </div>
           )}
         </div>
       </>
@@ -656,12 +660,10 @@ export default class Payroll extends React.Component<
   
 
   public handleCreatedDateChange(newValue: Dayjs) {
-    debugger;
     this.setState({ searchPayPeriodEndDate: newValue });
   }
 
   public async handleSearch() {
-    // debugger;
 
     let queryString =
       "https://peoplesoftservice20221228200557.azurewebsites.net/api/PeopleSoft/SearchPayroll?";
@@ -704,7 +706,6 @@ export default class Payroll extends React.Component<
       queryString += "&pageNbr=" + this.state.searchPageNbr;
     }
     await axios.get(queryString).then((response) => {
-      // debugger;
       this.setState({
         items: response.data,
         payrollResponseLength: response.data.length,
@@ -730,37 +731,31 @@ export default class Payroll extends React.Component<
      let queryStringNetPay =
     "https://peoplesoftservice20221228200557.azurewebsites.net/api/PeopleSoft/GetNetPay/" +
      payCheckNo;
-
     await axios.get(queryStringMainEarnings).then((response) => {
-      // debugger;
       this.setState({
         mainEarnings: response.data,
 
       });
     });
     await axios.get(queryStringDeductions).then((response) => {
-      // debugger;
       this.setState({
         deductions: response.data,
 
       });
     });
     await axios.get(queryStringSecondaryEarnings).then((response) => {
-      // debugger;
       this.setState({
         secondaryEarnings: response.data,
 
       });
     });
     await axios.get(queryStringNetPay).then((response) => {
-      // debugger;
       this.setState({
         netPay: response.data,
 
       });
     });
     await axios.get(queryStringTaxes).then((response) => {
-      // debugger;
       this.setState({
         taxes: response.data,
         payrollItem: newArray[0],
